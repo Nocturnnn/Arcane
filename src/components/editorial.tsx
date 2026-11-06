@@ -10,6 +10,8 @@ import {
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { getSectionMotion, sectionMotionSelector } from "@/lib/scroll-motion";
+import Image from "next/image";
+import { photoSizes } from "@/lib/image-sizes";
 
 type Motion = { y?: number; x?: number; rotate?: number; scale?: number };
 type LayerProps = Motion & {
@@ -61,11 +63,11 @@ export function Photo({
 }) {
   return (
     <Layer className={`photo ${className}`} {...motion}>
-      <img
+      <Image
         src={`/images/${src}`}
         alt={alt}
-        width={1000}
-        height={700}
+        fill
+        sizes={photoSizes(className)}
         loading={priority ? "eager" : "lazy"}
         fetchPriority={priority ? "high" : "auto"}
         decoding="async"
@@ -314,6 +316,8 @@ export function SourceFragment({
           width={736}
           height={1104}
           loading="eager"
+          fetchPriority="low"
+          decoding="async"
           style={{
             width: `${(736 / width) * 100}%`,
             height: `${(1104 / height) * 100}%`,
@@ -481,50 +485,63 @@ export function ScrollScene({ children }: { children: ReactNode }) {
       {
         desktop: "(min-width: 768px)",
         mobile: "(max-width: 767px)",
+        compact: "(min-width: 768px) and (max-width: 1023px)",
         motion: "(prefers-reduced-motion: no-preference)",
       },
       (context) => {
         if (!context.conditions?.motion) return;
-        const factor = context.conditions.mobile ? 0.3 : 1;
+        const factor = context.conditions.mobile
+          ? 0.3
+          : context.conditions.compact
+            ? 0.65
+            : 1;
+        const sections = Array.from(
+          root.current?.querySelectorAll<HTMLElement>("section") ?? [],
+        );
+        const markActive = (section: Element | null, active: boolean) =>
+          section?.toggleAttribute("data-motion-active", active);
         // Keep the hero's existing dispersion. It already follows the scroll
         // continuously and is intentionally different from the other spreads.
-        root.current
-          ?.querySelector("#inicio")
-          ?.querySelectorAll<HTMLElement>("[data-parallax]")
-          .forEach((el) => {
-            const section = el.closest("section");
-            const fragment =
-              el.classList.contains("source-fragment") ||
-              el.classList.contains("mirror-chip");
-            const photo = el.classList.contains("photo");
-            const gain = fragment
-              ? 1
-              : photo
-                ? 2.2
-                : el.classList.contains("paint")
-                  ? 2
-                  : 1.35;
-            const y = Number(el.dataset.y) * factor * gain;
-            const x = Number(el.dataset.x) * factor * gain;
-            const rotation =
-              Number(el.dataset.rotate) * factor * (photo ? 2 : 1);
-            const scale = Number(el.dataset.scale);
-            const timeline = gsap.timeline({
-              defaults: { ease: "none" },
-              scrollTrigger: {
-                trigger: section,
-                start: "top top",
-                end: "bottom top",
-                scrub: fragment ? 0.35 : 0.6,
-                invalidateOnRefresh: true,
-              },
-            });
-            timeline.fromTo(
-              el,
-              { y: 0, x: 0, rotation: 0, scale: 1 },
-              { y, x, rotation, scale, duration: 1 },
-            );
+        const hero = root.current?.querySelector("#inicio");
+        const makeHeroTimeline = (id: string, scrub: number) =>
+          gsap.timeline({
+            defaults: { duration: 1, ease: "none" },
+            scrollTrigger: {
+              id,
+              trigger: hero,
+              start: "top top",
+              end: "bottom top",
+              scrub,
+              invalidateOnRefresh: true,
+              onToggle: (self) => markActive(hero ?? null, self.isActive),
+            },
           });
+        const heroFragments = makeHeroTimeline("hero-fragments", 0.35);
+        const heroArtwork = makeHeroTimeline("hero-artwork", 0.6);
+        hero?.querySelectorAll<HTMLElement>("[data-parallax]").forEach((el) => {
+          const fragment =
+            el.classList.contains("source-fragment") ||
+            el.classList.contains("mirror-chip");
+          const photo = el.classList.contains("photo");
+          const gain = fragment
+            ? 1
+            : photo
+              ? 2.2
+              : el.classList.contains("paint")
+                ? 2
+                : 1.35;
+          const y = Number(el.dataset.y) * factor * gain;
+          const x = Number(el.dataset.x) * factor * gain;
+          const rotation = Number(el.dataset.rotate) * factor * (photo ? 2 : 1);
+          const scale = Number(el.dataset.scale);
+          const timeline = fragment ? heroFragments : heroArtwork;
+          timeline.fromTo(
+            el,
+            { y: 0, x: 0, rotation: 0, scale: 1 },
+            { y, x, rotation, scale, duration: 1, force3D: "auto" },
+            0,
+          );
+        });
 
         // One clock per spread, independent trajectories per element. A single
         // linear tween avoids a velocity change at the previous two-phase join.
@@ -551,6 +568,7 @@ export function ScrollScene({ children }: { children: ReactNode }) {
                   section.id === "trilha" ? "clamp(bottom top)" : "bottom top",
                 scrub: 0.45,
                 invalidateOnRefresh: true,
+                onToggle: (self) => markActive(section, self.isActive),
               },
             });
             elements.forEach((el, index) => {
@@ -581,13 +599,14 @@ export function ScrollScene({ children }: { children: ReactNode }) {
                   y: y / 2,
                   rotation: rotation + turn / 2,
                   scale: 1 + zoom / 2,
-                  force3D: true,
+                  force3D: "auto",
                 },
                 0,
               );
             });
             const bars = section.querySelectorAll<HTMLElement>(".waveform i");
-            bars.forEach((bar, index) =>
+            bars.forEach((bar, index) => {
+              if (context.conditions?.mobile && index % 2 === 1) return;
               timeline.fromTo(
                 bar,
                 {
@@ -598,9 +617,13 @@ export function ScrollScene({ children }: { children: ReactNode }) {
                   transformOrigin: "50% 50%",
                 },
                 0,
-              ),
-            );
+              );
+            });
           });
+        return () =>
+          sections.forEach((section) =>
+            section.removeAttribute("data-motion-active"),
+          );
       },
       root,
     );

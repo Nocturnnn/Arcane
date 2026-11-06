@@ -6,10 +6,10 @@
   --blue: #0752d4;
   --pink: #c31b69;
   --hairline: #39383245;
-  --mono: "IBM Plex Mono", monospace;
-  --serif: "Bodoni Moda", Georgia, serif;
-  --marker: "Permanent Marker", cursive;
-  --sans: "Anton", Impact, sans-serif;
+  --mono: var(--font-mono), monospace;
+  --serif: var(--font-serif), Georgia, serif;
+  --marker: var(--font-handwriting), cursive;
+  --sans: var(--font-condensed), Impact, sans-serif;
 }
 * {
   box-sizing: border-box;

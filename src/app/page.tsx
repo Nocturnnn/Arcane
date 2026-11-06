@@ -1,4 +1,5 @@
 import { CharacterGallery } from "@/components/character-panel";
+import Image from "next/image";
 import {
   Layer,
   Note,
@@ -113,11 +114,13 @@ export default function Home() {
               rotate={-4}
               scale={1.08}
             >
-              <img
+              <Image
                 src="/images/jinx-cutout.webp"
                 alt="Jinx, de cabelos azuis, estende a mão em direção ao observador"
-                width={900}
-                height={1350}
+                width={1024}
+                height={1536}
+                sizes="(max-width: 767px) 125vw, (max-width: 1800px) 75vw, 1350px"
+                quality={85}
                 fetchPriority="high"
                 loading="eager"
               />
@@ -396,11 +399,12 @@ export default function Home() {
               </h2>
             </Layer>
             <Layer className="hextech-crystal" y={-110} rotate={6} scale={1.06}>
-              <img
+              <Image
                 src="/images/hextech-crystal.webp"
                 alt="Cristal Hextech azul luminoso envolvido por uma estrutura de metal dourado"
                 width={800}
                 height={1200}
+                sizes="(max-width: 767px) 75vw, (max-width: 1800px) 36vw, 648px"
                 loading="lazy"
               />
             </Layer>
@@ -576,11 +580,12 @@ export default function Home() {
               </div>
             </Layer>
             <Layer className="album-cover" y={-75} rotate={-5}>
-              <img
+              <Image
                 src="/images/sister-jinx.webp"
                 alt="Capa editorial da trilha sonora de Arcane, com Jinx"
                 width={900}
                 height={1000}
+                sizes="(max-width: 767px) 58vw, (max-width: 1800px) 32vw, 576px"
                 loading="lazy"
               />
               <div className="album-type">

@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { Layer } from "./editorial";
 
 const people = {
@@ -38,9 +39,19 @@ type Person = keyof typeof people;
 export function CharacterGallery() {
   const dialog = useRef<HTMLDialogElement>(null);
   const [active, setActive] = useState<Person>("ekko");
+  const [isOpen, setIsOpen] = useState(false);
+  useEffect(() => {
+    if (!isOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
   const person = people[active];
   function open(id: Person) {
     setActive(id);
+    setIsOpen(true);
     dialog.current?.showModal();
   }
   return (
@@ -51,11 +62,12 @@ export function CharacterGallery() {
           onClick={() => open("ekko")}
           aria-label="Conhecer Ekko"
         >
-          <img
+          <Image
             src="/images/ekko-cutout.webp"
             alt="Ekko aponta seu dispositivo de tempo em nossa direção"
-            width={800}
-            height={1100}
+            width={1024}
+            height={1536}
+            sizes="(max-width: 767px) 86vw, (max-width: 1800px) 52vw, 936px"
             loading="lazy"
           />
           <span className="cutout-name">
@@ -76,11 +88,12 @@ export function CharacterGallery() {
             aria-label={`Conhecer ${people[id].name}`}
           >
             <span className="portrait-frame">
-              <img
+              <Image
                 src={`/images/${id}-cinematic.webp`}
                 alt={`Retrato de ${people[id].name}`}
                 width={900}
                 height={1200}
+                sizes="(max-width: 767px) 40vw, (max-width: 1800px) 28vw, 504px"
                 loading="lazy"
               />
             </span>
@@ -96,6 +109,7 @@ export function CharacterGallery() {
         className="character-dialog"
         aria-labelledby="character-name"
         aria-describedby="character-description"
+        onClose={() => setIsOpen(false)}
         onClick={(e) => {
           if (e.target === e.currentTarget) dialog.current?.close();
         }}
@@ -108,16 +122,19 @@ export function CharacterGallery() {
           >
             FECHAR <span>×</span>
           </button>
-          <img
-            src={
-              active === "ekko"
-                ? "/images/ekko-cutout.webp"
-                : `/images/${active}-cinematic.webp`
-            }
-            alt=""
-            width={900}
-            height={1200}
-          />
+          {isOpen && (
+            <Image
+              src={
+                active === "ekko"
+                  ? "/images/ekko-cutout.webp"
+                  : `/images/${active}-cinematic.webp`
+              }
+              alt=""
+              width={900}
+              height={1200}
+              sizes="(max-width: 767px) 92vw, 380px"
+            />
+          )}
           <div className="dialog-copy">
             <span className="eyebrow">{person.city}</span>
             <h2 id="character-name">{person.name}</h2>

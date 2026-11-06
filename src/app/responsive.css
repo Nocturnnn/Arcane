@@ -1,0 +1,204 @@
+/* Responsive refinements preserve the approved collage and scroll paths. */
+html {
+  scrollbar-gutter: stable;
+  scroll-padding-top: max(24px, env(safe-area-inset-top));
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  background-image: url("/images/paper-grain.svg");
+}
+/* Cached texture replaces the fixed blend layer, avoiding full-screen blending
+   against every moving photograph on every scroll frame. */
+body:before {
+  display: none;
+}
+.layer {
+  will-change: auto;
+}
+section[data-motion-active] [data-parallax],
+section[data-motion-active] .editorial-note,
+section[data-motion-active] .scribble,
+section[data-motion-active] .waveform {
+  will-change: transform;
+}
+.portrait-frame {
+  position: relative;
+}
+.character-dialog {
+  max-height: calc(100dvh - 32px);
+  overscroll-behavior: contain;
+}
+.dialog-close {
+  min-width: 100px;
+  min-height: 44px;
+  touch-action: manipulation;
+}
+.masthead nav a,
+.tracklist a,
+footer a {
+  touch-action: manipulation;
+}
+.tracklist li a {
+  min-height: 56px;
+}
+@media (min-width: 1800px) {
+  .hero-title h1 {
+    font-size: 218px;
+  }
+  .masthead,
+  footer {
+    padding-left: 54px;
+    padding-right: 54px;
+  }
+}
+@media (max-width: 767px) {
+  .masthead {
+    height: 108px;
+    padding-left: max(5%, env(safe-area-inset-left));
+    padding-right: max(5%, env(safe-area-inset-right));
+  }
+  .masthead nav {
+    gap: clamp(10px, 4vw, 22px);
+    justify-content: space-between;
+  }
+  .masthead nav a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  .hero {
+    height: clamp(800px, 230vw, 980px);
+  }
+  .hero-jinx {
+    height: 81%;
+  }
+  .cities {
+    height: clamp(720px, 205vw, 900px);
+  }
+  .sisters {
+    height: clamp(760px, 220vw, 1060px);
+  }
+  .characters {
+    height: clamp(1000px, 292vw, 1340px);
+  }
+  .hextech {
+    height: clamp(760px, 225vw, 1080px);
+  }
+  .history {
+    height: clamp(900px, 260vw, 1240px);
+  }
+  .soundtrack {
+    height: clamp(980px, 255vw, 1180px);
+  }
+  .portrait-caption strong {
+    font-size: 9px;
+  }
+  .portrait-caption > span {
+    font-size: 7px;
+    line-height: 1.5;
+  }
+  .character-hint {
+    font-size: 8px;
+    max-width: 145px;
+  }
+  .tracklist h3 {
+    font-size: 18px;
+  }
+  .track-info strong {
+    font-size: 11px;
+  }
+  .track-info small {
+    font-size: 9px;
+  }
+  .tracklist time {
+    font-size: 10px;
+  }
+  .listen-note {
+    font-size: 8px;
+    letter-spacing: 0.7px;
+    line-height: 1.7;
+  }
+  .footer-bottom {
+    font-size: 8px;
+    line-height: 1.8;
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+  .footer-bottom nav {
+    flex-wrap: wrap;
+    gap: 8px 22px;
+  }
+  .footer-bottom nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 9px;
+  }
+  .footer-top > a:last-child {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    font-size: 8px;
+  }
+  .dialog-content > img {
+    height: clamp(190px, 55vw, 280px);
+  }
+  .dialog-copy #character-description {
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  /* Keep elaborate paths; skip live displacement and soft shadow rasterization
+    on narrow screens. Cached image masks still supply the printed texture. */
+  .paint svg g[filter],
+  .ink-splatter svg g[filter] {
+    filter: none;
+  }
+  .hero-jinx img,
+  .photo,
+  .source-fragment,
+  .mirror-chip {
+    filter: none;
+  }
+  .waveform i:nth-child(even) {
+    display: none;
+  }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .character-dialog {
+    width: min(830px, 94vw);
+  }
+  .dialog-content {
+    display: grid;
+    grid-template-columns: 40% 60%;
+  }
+  .dialog-content > img {
+    height: 100%;
+    min-height: 0;
+  }
+  .dialog-copy {
+    padding: 52px 24px 24px;
+  }
+  .dialog-copy h2 {
+    font-size: 48px;
+  }
+  .dialog-role {
+    font-size: 12px;
+  }
+  .dialog-copy #character-description {
+    font-size: 12px;
+    margin-top: 12px;
+  }
+  .dialog-end {
+    margin-top: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  section[data-motion-active] [data-parallax],
+  section[data-motion-active] .editorial-note,
+  section[data-motion-active] .scribble,
+  section[data-motion-active] .waveform {
+    will-change: auto;
+  }
+}
